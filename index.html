@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ta" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>தினசரி தமிழ் வேத வசனம் & ஜெப நினைவூட்டல் | Daily Tamil Bible Verse & Prayer Reminder PWA</title>
+  <meta name="description" content="தினசரி தமிழ் வேத வசனங்கள், அமைதி ஜெப கடிகாரம், தினசரி நினைவூட்டல் மற்றும் ஆஃப்லைன் ஆதரவு கொண்ட PWA செயலி." />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="தமிழ் வசனம்" />
+
+  <!-- Manifest Link -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%236366f1'/%3E%3Cpath d='M50 20v60M30 40h40' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%236366f1'/%3E%3Cpath d='M50 20v60M30 40h40' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <!-- Google Fonts: Noto Sans Tamil, Tiro Tamil, Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tiro+Tamil:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN for Single-File Standalone Execution -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            tamil: ['"Noto Sans Tamil"', 'sans-serif'],
+            serifTamil: ['"Tiro Tamil"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans Tamil"', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            surface: {
+              dark: '#0f172a',
+              darkCard: '#1e293b',
+              darkSubtle: '#334155',
+              light: '#f8fafc',
+              lightCard: '#ffffff',
+              lightSubtle: '#f1f5f9'
+            },
+            sepia: {
+              bg: '#fbf7ee',
+              card: '#f4ede0',
+              text: '#433422',
+              accent: '#8d5b28'
+            }
+          },
+          boxShadow: {
+            'm3': '0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04)',
+            'm3-dark': '0 8px 30px -4px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.3)',
+            'glow': '0 0 25px -5px rgba(99, 102, 241, 0.4)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Material 3 & Typography details */
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
+    
+    .tamil-quote {
+      font-family: 'Tiro Tamil', 'Noto Sans Tamil', serif;
+      line-height: 1.8;
+      letter-spacing: 0.015em;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.5);
+    }
+
+    /* Sepia Theme */
+    html.theme-sepia body {
+      background-color: #fbf7ee !important;
+      color: #433422 !important;
+    }
+    html.theme-sepia .theme-bg-card {
+      background-color: #f4ede0 !important;
+      border-color: #e5dbc8 !important;
+      color: #433422 !important;
+    }
+    html.theme-sepia .theme-text-muted {
+      color: #78644e !important;
+    }
+
+    /* Pulse animation for prayer breathing */
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    .animate-breathe {
+      animation: breathe 5s ease-in-out infinite;
+    }
+
+    /* Toast animation */
+    .toast-enter {
+      transform: translateY(100%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ==================== TOP NAVIGATION HEADER ==================== -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-slate-900/85 dark:bg-slate-900/85 border-b border-slate-800 dark:border-slate-800 transition-colors">
+    <div class="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Icon -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white font-bold text-lg">
+          ✝
+        </div>
+        <div>
+          <h1 id="app-header-title" class="font-bold text-base sm:text-lg leading-tight tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            தமிழ் வேத வசனம்
+          </h1>
+          <div class="flex items-center space-x-2">
+            <span id="network-status" class="inline-flex items-center text-[11px] font-medium text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
+              <span id="network-status-text">நேரலை (Online)</span>
+            </span>
+            <span class="text-slate-600 text-xs">•</span>
+            <span id="verse-source-pill" class="text-[11px] text-indigo-300 bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-800/40">API</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center space-x-1.5">
+        
+        <!-- Language Switcher -->
+        <button id="btn-lang-toggle" onclick="toggleLanguage()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700/60 transition-all flex items-center space-x-1" title="Change Language / மொழி மாற்று">
+          <span id="lang-indicator">தமிழ்</span>
+          <span class="text-slate-400 text-[10px]">/ EN</span>
+        </button>
+
+        <!-- Favorites Button -->
+        <button id="btn-favorites-open" onclick="openFavoritesModal()" class="relative p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-all" title="Saved Favorites / பிடித்தவை">
+          <svg class="w-5 h-5 text-rose-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span id="fav-count-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+        </button>
+
+        <!-- Theme Toggle (Dark / Light / Sepia) -->
+        <button id="btn-theme-toggle" onclick="cycleTheme()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-all" title="Change Theme / தீம் மாற்று">
+          <svg id="theme-icon-dark" class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+
+        <!-- PWA Install Button (Hidden until prompt ready) -->
+        <button id="btn-pwa-install" onclick="triggerPwaInstall()" class="hidden p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-all" title="Install App / செயலியை நிறுவு">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="flex-1 max-w-xl w-full mx-auto px-4 py-4 space-y-6 pb-24">
+
+    <!-- Offline Alert Banner (Dynamically Shown if Offline) -->
+    <div id="offline-banner" class="hidden rounded-2xl p-3.5 bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 4.243a9 9 0 01-2.828-5.657m0 0L3 3m5.657 5.657a5 5 0 017.071 0" />
+        </svg>
+        <span id="offline-banner-text">இணைய இணைப்பு இல்லை. உள்ளமைக்கப்பட்ட தமிழ் வசனங்கள் காண்பிக்கப்படுகின்றன.</span>
+      </div>
+      <button onclick="fetchDailyVerse(currentLanguage, true)" class="underline font-semibold ml-2 hover:text-amber-100 shrink-0">மீண்டும் முயற்சி</button>
+    </div>
+
+    <!-- Topic Filters Pill Bar -->
+    <section aria-label="Topic Categories" class="space-y-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          <span id="lbl-categories">பிரிவுகள் (Topics)</span>
+        </span>
+        <button onclick="getRandomVerse()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span id="btn-random-verse-text">வேறு வசனம்</span>
+        </button>
+      </div>
+
+      <!-- Filter Buttons (Horizontal Scrollable) -->
+      <div class="flex space-x-2 overflow-x-auto pb-1.5 scrollbar-none no-scrollbar pt-1" id="topic-chips-container">
+        <button onclick="setTopicFilter('all')" class="topic-chip active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-indigo-600 text-white shadow-sm border border-indigo-500 transition-all flex items-center space-x-1" data-topic="all">
+          <span>✨</span>
+          <span class="chip-label">அனைத்தும் (All)</span>
+        </button>
+        <button onclick="setTopicFilter('peace')" class="topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1" data-topic="peace">
+          <span>🕊️</span>
+          <span class="chip-label">சமாதானம் (Peace)</span>
+        </button>
+        <button onclick="setTopicFilter('trust')" class="topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1" data-topic="trust">
+          <span>⚓</span>
+          <span class="chip-label">நம்பிக்கை (Trust)</span>
+        </button>
+        <button onclick="setTopicFilter('courage')" class="topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1" data-topic="courage">
+          <span>🦁</span>
+          <span class="chip-label">தைரியம் (Courage)</span>
+        </button>
+        <button onclick="setTopicFilter('hope')" class="topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1" data-topic="hope">
+          <span>🌅</span>
+          <span class="chip-label">எதிர்காலம் (Hope)</span>
+        </button>
+        <button onclick="setTopicFilter('prayer')" class="topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1" data-topic="prayer">
+          <span>🙏</span>
+          <span class="chip-label">ஜெபம் (Prayer)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== MAIN VERSE CARD ==================== -->
+    <article id="verse-card" class="theme-bg-card relative rounded-3xl p-6 sm:p-7 bg-slate-800/95 border border-slate-700/80 shadow-m3-dark backdrop-blur-xl transition-all duration-300 overflow-hidden group">
+      
+      <!-- Ambient Card Aura Glow -->
+      <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-600/15 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-60 h-60 rounded-full bg-purple-600/15 blur-3xl pointer-events-none"></div>
+
+      <!-- Holy Cross Watermark Motif -->
+      <div class="absolute right-4 bottom-4 opacity-5 pointer-events-none select-none">
+        <svg class="w-36 h-36" fill="currentColor" viewBox="0 0 100 100">
+          <path d="M50 5v90M20 35h60" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Card Top Meta Bar -->
+      <div class="relative flex items-center justify-between mb-4 z-10">
+        <div class="flex items-center space-x-2">
+          <span id="verse-topic-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-950/80 text-indigo-300 border border-indigo-800/50 flex items-center space-x-1">
+            <span id="topic-badge-icon">🕊️</span>
+            <span id="topic-badge-text">சமாதானம்</span>
+          </span>
+          <span id="verse-date-badge" class="text-[11px] text-slate-400 font-medium">இன்றைய நாள்</span>
+        </div>
+
+        <!-- Typography Size Controls -->
+        <div class="flex items-center space-x-1 bg-slate-900/60 rounded-xl p-1 border border-slate-700/50">
+          <button onclick="adjustFontSize(-1)" class="w-6 h-6 rounded-lg text-xs font-bold text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-800 transition-colors" title="Font Smaller">A-</button>
+          <span id="font-size-indicator" class="text-[10px] text-slate-500 font-mono px-1">1x</span>
+          <button onclick="adjustFontSize(1)" class="w-6 h-6 rounded-lg text-xs font-bold text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-800 transition-colors" title="Font Larger">A+</button>
+        </div>
+      </div>
+
+      <!-- Decorative Large Quote Mark -->
+      <div class="text-indigo-400/30 text-5xl font-serif leading-none select-none mb-1">“</div>
+
+      <!-- Verse Content Section -->
+      <div id="verse-content-container" class="relative z-10 space-y-4">
+        
+        <!-- Primary Verse Text -->
+        <p id="verse-text" class="tamil-quote text-lg sm:text-xl md:text-2xl font-medium text-slate-50 leading-relaxed sm:leading-loose text-left transition-all">
+          சமாதானத்தை உங்களுக்கு வைத்துப்போகிறேன், என்னுடைய சமாதானத்தையே உங்களுக்குக் கொடுக்கிறேன்; உலகம் கொடுக்கிறபிரகாரம் நான் உங்களுக்குக் கொடுக்கிறதில்லை. உங்கள் இருதயம் கலங்காமலும் பயப்படாமலும் இருப்பதாக.
+        </p>
+
+        <!-- Secondary Parallel Translation (if enabled or toggled) -->
+        <div id="parallel-translation-container" class="pt-2 border-t border-slate-700/40">
+          <p id="verse-translation" class="text-xs sm:text-sm text-slate-300 font-sans italic leading-relaxed">
+            "Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid."
+          </p>
+        </div>
+
+        <!-- Verse Reference (Book, Chapter & Verse) -->
+        <div class="pt-2 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="w-1.5 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+            <div>
+              <h2 id="verse-reference" class="text-base sm:text-lg font-bold text-indigo-400 tracking-wide font-tamil">
+                யோவான் 14:27
+              </h2>
+              <span id="verse-ref-english" class="text-xs text-slate-400 font-normal">John 14:27</span>
+            </div>
+          </div>
+          
+          <!-- Reflection expander toggle -->
+          <button onclick="toggleReflection()" class="text-xs text-slate-400 hover:text-indigo-300 flex items-center space-x-1 font-medium transition-colors">
+            <span id="reflection-toggle-text">தியானம்</span>
+            <svg id="reflection-arrow" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Daily Reflection / Meditation Box -->
+        <div id="reflection-box" class="hidden mt-3 p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-800/30 text-xs sm:text-sm text-indigo-200/90 leading-relaxed">
+          <div class="font-semibold text-indigo-300 mb-1 flex items-center space-x-1.5">
+            <span>💡</span>
+            <span id="lbl-reflection-heading">இன்றைய தியான சிந்தனை:</span>
+          </div>
+          <p id="verse-reflection-text">
+            உலகத்தின் சூழ்நிலைகள் மாறினாலும், இயேசு கிறிஸ்து நமக்கு அருளும் தேவ சமாதானம் ஒருபோதும் மாறுவதில்லை. உங்கள் கவலைகளை அவரிடம் இறக்கி வையுங்கள்.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons Toolbar (Material 3 style) -->
+      <div class="relative mt-6 pt-4 border-t border-slate-700/60 flex items-center justify-between gap-1 sm:gap-2 z-10 flex-wrap">
+        
+        <!-- Copy Button -->
+        <button id="btn-copy-verse" onclick="copyVerseToClipboard()" class="flex-1 min-w-[75px] py-2.5 px-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 border border-slate-600/40 transition-all active:scale-95">
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+          </svg>
+          <span id="btn-copy-text">நகலெடு</span>
+        </button>
+
+        <!-- Share to WhatsApp Button -->
+        <button id="btn-share-whatsapp" onclick="shareToWhatsApp()" class="flex-1 min-w-[85px] py-2.5 px-3 rounded-2xl bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-sm transition-all active:scale-95">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z"/>
+          </svg>
+          <span id="btn-share-text">பகிர்</span>
+        </button>
+
+        <!-- Add to Favorites Button -->
+        <button id="btn-toggle-favorite" onclick="toggleCurrentFavorite()" class="py-2.5 px-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 border border-slate-600/40 transition-all active:scale-95" title="Add to Favorites">
+          <svg id="fav-heart-icon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <span id="btn-fav-text">விருப்பம்</span>
+        </button>
+
+        <!-- Read Aloud (TTS) Button -->
+        <button id="btn-tts" onclick="speakCurrentVerse()" class="py-2.5 px-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 border border-slate-600/40 transition-all active:scale-95" title="Listen Audio / கேட்க">
+          <svg id="tts-icon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <span id="btn-audio-text">கேள்</span>
+        </button>
+
+        <!-- Wallpaper Image Card Button -->
+        <button id="btn-card-download" onclick="generateWallpaperCard()" class="py-2.5 px-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 border border-slate-600/40 transition-all active:scale-95" title="Save Wallpaper Card / படம் சேமி">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span id="btn-wallpaper-text">படம்</span>
+        </button>
+
+      </div>
+    </article>
+
+    <!-- ==================== PRAYER TIMER MODULE ==================== -->
+    <section id="prayer-timer-section" class="theme-bg-card rounded-3xl p-6 bg-slate-800/90 border border-slate-700/80 shadow-m3-dark backdrop-blur-xl space-y-5">
+      
+      <!-- Section Header -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
+            ⏳
+          </div>
+          <div>
+            <h3 id="lbl-timer-title" class="text-base font-bold text-slate-100">
+              அமைதி ஜெப நேரம் (Prayer Timer)
+            </h3>
+            <p id="lbl-timer-desc" class="text-xs text-slate-400">
+              தேவ சமூகத்தில் அமைதியாக தியானித்து ஜெபிக்க
+            </p>
+          </div>
+        </div>
+
+        <!-- Chime Sound Indicator -->
+        <div class="flex items-center space-x-1.5 bg-slate-900/60 px-2.5 py-1 rounded-xl border border-slate-700/50 text-[11px] text-indigo-300">
+          <span>🔔</span>
+          <span id="lbl-chime-info">மெல்லிய மணி ஓசை</span>
+        </div>
+      </div>
+
+      <!-- Timer Preset Selection -->
+      <div class="flex items-center justify-center space-x-2">
+        <button onclick="setTimerDuration(60)" class="timer-preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40 hover:bg-slate-700 transition-all" data-sec="60">
+          1 நிமிடம்
+        </button>
+        <button onclick="setTimerDuration(180)" class="timer-preset-btn active px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm border border-indigo-500 transition-all" data-sec="180">
+          3 நிமிடம்
+        </button>
+        <button onclick="setTimerDuration(300)" class="timer-preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40 hover:bg-slate-700 transition-all" data-sec="300">
+          5 நிமிடம்
+        </button>
+        <button onclick="setTimerDuration(600)" class="timer-preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40 hover:bg-slate-700 transition-all" data-sec="600">
+          10 நிமிடம்
+        </button>
+      </div>
+
+      <!-- Circular Timer Display -->
+      <div class="flex flex-col items-center justify-center py-2">
+        <div class="relative w-48 h-48 flex items-center justify-center">
+          
+          <!-- Outer Breathing Animation Glow when running -->
+          <div id="timer-breathe-glow" class="hidden absolute inset-0 rounded-full bg-indigo-500/20 blur-xl animate-breathe"></div>
+
+          <!-- SVG Circular Progress Bar -->
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+            <!-- Background Ring -->
+            <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="8" class="text-slate-700/50" fill="transparent" />
+            <!-- Animated Progress Ring -->
+            <circle id="timer-progress-ring" cx="80" cy="80" r="70" stroke="url(#timerGrad)" stroke-width="8" stroke-linecap="round" fill="transparent" stroke-dasharray="439.82" stroke-dashoffset="0" class="transition-all duration-300" />
+            <defs>
+              <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#818cf8" />
+                <stop offset="100%" stop-color="#c084fc" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <!-- Inside Center Details -->
+          <div class="absolute flex flex-col items-center justify-center text-center">
+            <span id="timer-display" class="text-3xl font-extrabold tracking-tight text-white font-mono">03:00</span>
+            <span id="timer-phase-text" class="text-[11px] font-semibold text-indigo-300 mt-1 uppercase tracking-wider">ஆரம்ப அமைதி</span>
+            <span id="timer-prompt-text" class="text-[10px] text-slate-400 mt-0.5 max-w-[110px] truncate">தியானியுங்கள்...</span>
+          </div>
+        </div>
+
+        <!-- Timer Controls (Play / Pause / Reset / Test Chime) -->
+        <div class="flex items-center space-x-3 mt-4">
+          <button id="btn-timer-toggle" onclick="togglePrayerTimer()" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center transition-all active:scale-95">
+            <svg id="timer-play-icon" class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg id="timer-pause-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          </button>
+
+          <button onclick="resetPrayerTimer()" class="p-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 border border-slate-600/40 transition-all active:scale-95" title="Reset Timer / மீண்டும் துவங்கு">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+
+          <button onclick="playChimeSound(660, 1.8)" class="p-3 rounded-2xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 border border-slate-600/40 transition-all active:scale-95" title="Test Chime Sound / மணி ஓசை சோதனை">
+            <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DAILY REMINDER & NOTIFICATIONS MODULE ==================== -->
+    <section id="daily-reminder-section" class="theme-bg-card rounded-3xl p-6 bg-slate-800/90 border border-slate-700/80 shadow-m3-dark backdrop-blur-xl space-y-4">
+      
+      <!-- Section Header -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300">
+            ⏰
+          </div>
+          <div>
+            <h3 id="lbl-reminder-title" class="text-base font-bold text-slate-100">
+              தினசரி நினைவூட்டல் (Daily Reminder)
+            </h3>
+            <p id="lbl-reminder-desc" class="text-xs text-slate-400">
+              தினமும் வேத வசனத்தையும் ஜெபத்தையும் நினைவூட்ட
+            </p>
+          </div>
+        </div>
+
+        <!-- Toggle Switch for Reminder -->
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="reminder-switch" onchange="toggleDailyReminder(this.checked)" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+        </label>
+      </div>
+
+      <!-- Time Picker & Presets -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        
+        <!-- Custom Time Input -->
+        <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-700/50 flex items-center justify-between">
+          <label for="reminder-time-input" class="text-xs font-semibold text-slate-300" id="lbl-pick-time">நேரம் தேர்வு:</label>
+          <input type="time" id="reminder-time-input" value="06:30" onchange="saveReminderTime(this.value)" class="bg-slate-800 text-white font-mono text-sm px-2.5 py-1 rounded-xl border border-slate-600 focus:outline-none focus:border-indigo-500" />
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <button onclick="setQuickReminderTime('06:00')" class="px-2.5 py-2 rounded-xl text-xs bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-700/50">06:00 AM</button>
+          <button onclick="setQuickReminderTime('06:30')" class="px-2.5 py-2 rounded-xl text-xs bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-700/50">06:30 AM</button>
+          <button onclick="setQuickReminderTime('08:00')" class="px-2.5 py-2 rounded-xl text-xs bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-700/50">08:00 AM</button>
+          <button onclick="setQuickReminderTime('21:00')" class="px-2.5 py-2 rounded-xl text-xs bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-700/50">09:00 PM</button>
+        </div>
+
+      </div>
+
+      <!-- Reminder Status Info -->
+      <div id="reminder-status-box" class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-800/30 flex items-center justify-between text-xs text-indigo-200">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+          <span id="reminder-status-text">நினைவூட்டல் நேரம்: காலை 06:30 AM</span>
+        </div>
+        <button onclick="sendTestNotification()" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold underline">
+          சோதனை செய்
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== FAVORITES MODAL / DRAWER ==================== -->
+  <div id="favorites-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="theme-bg-card bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-700/60 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-xl text-rose-400">❤️</span>
+          <h3 id="lbl-fav-title" class="font-bold text-lg text-white">பிடித்த வசனங்கள் (Favorites)</h3>
+        </div>
+        <button onclick="closeFavoritesModal()" class="p-2 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Favorites List Container -->
+      <div id="favorites-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <!-- Dynamic favorite cards injected here -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-700/60 bg-slate-900/40 flex items-center justify-between text-xs text-slate-400">
+        <span id="fav-total-text">மொத்தம்: 0 வசனங்கள்</span>
+        <button onclick="clearAllFavorites()" class="text-rose-400 hover:text-rose-300 underline font-medium">அனைத்தையும் நீக்கு</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-[90%] bg-slate-800/95 border border-indigo-500/50 text-slate-100 px-4 py-3 rounded-2xl shadow-xl backdrop-blur-md flex items-center space-x-3 pointer-events-none transition-all duration-300 opacity-0 translate-y-6">
+    <div id="toast-icon" class="w-7 h-7 rounded-xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center shrink-0">
+      ✓
+    </div>
+    <p id="toast-message" class="text-xs sm:text-sm font-medium leading-snug">வசனம் நகலெடுக்கப்பட்டது!</p>
+  </div>
+
+  <!-- Hidden Canvas for Generating Wallpaper Image Cards -->
+  <canvas id="wallpaper-canvas" width="1080" height="1350" style="display:none;"></canvas>
+
+  <!-- ==================== JAVASCRIPT LOGIC ENGINE ==================== -->
+  <script>
+    // ==================== 1. PRE-BUNDLED TAMIL BIBLE VERSES DATASET ====================
+    const PRESET_VERSES = [
+      // PEACE (சமாதானம்)
+      {
+        id: 'peace-1',
+        topic: 'peace',
+        topicTa: 'சமாதானம்',
+        topicEn: 'Peace',
+        refTa: 'யோவான் 14:27',
+        refEn: 'John 14:27',
+        textTa: 'சமாதானத்தை உங்களுக்கு வைத்துப்போகிறேன், என்னுடைய சமாதானத்தையே உங்களுக்குக் கொடுக்கிறேன்; உலகம் கொடுக்கிறபிரகாரம் நான் உங்களுக்குக் கொடுக்கிறதில்லை. உங்கள் இருதயம் கலங்காமலும் பயப்படாமலும் இருப்பதாக.',
+        textEn: 'Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.',
+        reflectionTa: 'உலகத்தின் கவலைகளுக்கு மத்தியில் இயேசு அருளும் தெய்வீக சமாதானம் உங்கள் இதயத்தை ஆளுகை செய்யட்டும்.',
+        reflectionEn: 'Let the divine peace of Christ rule your heart above all earthly circumstances.'
+      },
+      {
+        id: 'peace-2',
+        topic: 'peace',
+        topicTa: 'சமாதானம்',
+        topicEn: 'Peace',
+        refTa: 'பிலிப்பியர் 4:7',
+        refEn: 'Philippians 4:7',
+        textTa: 'அப்பொழுது, எல்லாப் புத்திக்கும் மேலான தேவ சமாதானம் உங்கள் இருதயங்களையும் உங்கள் சிந்தைகளையும் கிறிஸ்து இயேசுவுக்குள்ளாகக் காத்துக்கொள்ளும்.',
+        textEn: 'And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.',
+        reflectionTa: 'தேவ சமாதானம் மனித அறிவுக்கு அப்பாற்பட்டது; அது உங்கள் சிந்தனைகளைத் தீங்கிலிருந்து காக்கும்.',
+        reflectionEn: 'God\'s peace transcends human logic and guards your thoughts securely.'
+      },
+      {
+        id: 'peace-3',
+        topic: 'peace',
+        topicTa: 'சமாதானம்',
+        topicEn: 'Peace',
+        refTa: 'ஏசாயா 26:3',
+        refEn: 'Isaiah 26:3',
+        textTa: 'உம்மையே உறுதியாய்ப் பற்றிக்கொண்ட மனதையுடையவன் உம்மையே நம்பியிருக்கிறபடியினால், நீர் அவனைப் பூரண சமாதானத்துடன் காத்துக்கொள்வீர்.',
+        textEn: 'You will keep in perfect peace those whose minds are steadfast, because they trust in you.',
+        reflectionTa: 'நம் கவனம் கர்த்தர் மீது நிலைத்திருக்கும் போது, பூரண சமாதானம் நம்மைச் சூழ்ந்துகொள்ளும்.',
+        reflectionEn: 'Keep your mind focused on the Lord and experience His perfect stillness.'
+      },
+
+      // TRUST (நம்பிக்கை)
+      {
+        id: 'trust-1',
+        topic: 'trust',
+        topicTa: 'நம்பிக்கை',
+        topicEn: 'Trust',
+        refTa: 'நீதிமொழிகள் 3:5-6',
+        refEn: 'Proverbs 3:5-6',
+        textTa: 'உன் சுயபுத்தியின்மேல் சாயாமல், உன் முழு இருதயத்தோடும் கர்த்தரில் நம்பிக்கையாயிருந்து; உன் வழிகளிலெல்லாம் அவரை நினைத்துக்கொள்; அப்பொழுது அவர் உன் பாதைகளைச் செவ்வைப்படுத்துவார்.',
+        textEn: 'Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.',
+        reflectionTa: 'மனிதனின் சுயபுத்தி குறுகியது. கர்த்தரை முழுமையாக நம்பும்போது அவர் நம் பாதையைச் சீராக்குவார்.',
+        reflectionEn: 'Surrender your plans into God\'s trustworthy guidance and watch Him make a way.'
+      },
+      {
+        id: 'trust-2',
+        topic: 'trust',
+        topicTa: 'நம்பிக்கை',
+        topicEn: 'Trust',
+        refTa: 'சங்கீதம் 37:5',
+        refEn: 'Psalm 37:5',
+        textTa: 'உன் வழியைக் கர்த்தருக்கு ஒப்புவித்து, அவர்மேல் நம்பிக்கையாயிரு; அவரே காரியத்தை வாய்க்கப்பண்ணுவார்.',
+        textEn: 'Commit your way to the Lord; trust in him and he will do this.',
+        reflectionTa: 'உங்கள் பாரங்களையும் எதிர்கால திட்டங்களையும் அவரிடம் முழுமையாக ஒப்படைத்து நிம்மதியாய் இருங்கள்.',
+        reflectionEn: 'Commit every burden to God; He faithfully handles all our matters.'
+      },
+      {
+        id: 'trust-3',
+        topic: 'trust',
+        topicTa: 'நம்பிக்கை',
+        topicEn: 'Trust',
+        refTa: 'எரேமியா 17:7',
+        refEn: 'Jeremiah 17:7',
+        textTa: 'கர்த்தர்மேல் நம்பிக்கை வைத்து, கர்த்தரைத் தன் நம்பிக்கையாகக் கொண்டிருக்கிற மனுஷன் பாக்கியவான்.',
+        textEn: 'Blessed is the one who trusts in the Lord, whose confidence is in him.',
+        reflectionTa: 'தேவனைத் தன் அடைக்கலமாகக் கொண்டவன் தண்ணீரோரமாய் நடப்பட்ட செழிப்பான மரத்தைப் போன்றவன்.',
+        reflectionEn: 'Those whose hope rests in the Lord flourish like trees planted by water.'
+      },
+
+      // COURAGE (தைரியம்)
+      {
+        id: 'courage-1',
+        topic: 'courage',
+        topicTa: 'தைரியம்',
+        topicEn: 'Courage',
+        refTa: 'யோசுவா 1:9',
+        refEn: 'Joshua 1:9',
+        textTa: 'நான் உனக்குக் கட்டளையிடவில்லையா? பலங்கொண்டு திடமனதாயிரு; திகையாதே, கலங்காதே, நீ போகும் இடமெல்லாம் உன் தேவனாகிய கர்த்தர் உன்னோடே இருக்கிறார்.',
+        textEn: 'Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.',
+        reflectionTa: 'எந்த சவாலையும் எதிர்கொள்ள அஞ்சாதீர்கள்; சர்வவல்லமையுள்ள தேவன் உங்களுடனே இருக்கிறார்.',
+        reflectionEn: 'Step boldly into the day. The Almighty God walks beside you in every step.'
+      },
+      {
+        id: 'courage-2',
+        topic: 'courage',
+        topicTa: 'தைரியம்',
+        topicEn: 'Courage',
+        refTa: '2 தீமோத்தேயு 1:7',
+        refEn: '2 Timothy 1:7',
+        textTa: 'தேவன் நமக்கு பயமுள்ள ஆவியைக் கொடாமல், பலமும் அன்பும் தெளிந்த புத்தியுமுள்ள ஆவியையே கொடுத்திருக்கிறார்.',
+        textEn: 'For God has not given us a spirit of fear, but of power and of love and of a sound mind.',
+        reflectionTa: 'பயத்தை விரட்டும் அன்பும், தெளிந்த புத்தியும் தேவனால் நமக்கு அருளப்பட்டுள்ளது.',
+        reflectionEn: 'You are equipped not with fear, but with strength, divine love, and clarity.'
+      },
+      {
+        id: 'courage-3',
+        topic: 'courage',
+        topicTa: 'தைரியம்',
+        topicEn: 'Courage',
+        refTa: 'சங்கீதம் 27:1',
+        refEn: 'Psalm 27:1',
+        textTa: 'கர்த்தர் என் வெளிச்சமும் என் இரட்சிப்புமானவர், யாருக்குப் பயப்படுவேன்? கர்த்தர் என் ஜீவனின் பெலனானவர், யாருக்கு அஞ்சுவேன்?',
+        textEn: 'The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?',
+        reflectionTa: 'தேவனே நமது அரண்; எந்த இருளும் அவருடைய வெளிச்சத்தை மேற்கொள்ள முடியாது.',
+        reflectionEn: 'With God as your radiant light and shield, no darkness can overpower you.'
+      },
+
+      // HOPE (எதிர்காலம்)
+      {
+        id: 'hope-1',
+        topic: 'hope',
+        topicTa: 'எதிர்காலம்',
+        topicEn: 'Hope',
+        refTa: 'எரேமியா 29:11',
+        refEn: 'Jeremiah 29:11',
+        textTa: 'நீங்கள் எதிர்பார்த்திருக்கும் முடிவை உங்களுக்குக் கொடுக்கும்படிக்கு நான் உங்கள்பேரில் நினைத்திருக்கிற நினைவுகளை அறிவேன் என்று கர்த்தர் சொல்லுகிறார்; அவைகள் தீமைக்கல்ல, சமாதானத்துக்கேதுவான நினைவுகளே.',
+        textEn: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.',
+        reflectionTa: 'உங்கள் எதிர்காலத்தைக் குறித்து தேவன் ஒரு உன்னதமான ஆசீர்வாதத் திட்டத்தை வைத்திருக்கிறார்.',
+        reflectionEn: 'God holds your future with plans of immense hope, peace, and goodness.'
+      },
+      {
+        id: 'hope-2',
+        topic: 'hope',
+        topicTa: 'எதிர்காலம்',
+        topicEn: 'Hope',
+        refTa: 'ரோமர் 15:13',
+        refEn: 'Romans 15:13',
+        textTa: 'பரிசுத்த ஆவியின் பலத்தினாலே உங்களுக்கு நம்பிக்கை பெருகும்படிக்கு, நம்பிக்கையின் தேவன் விசுவாசத்தினால் உண்டாகும் எல்லாவித சந்தோஷத்தினாலும் சமாதானத்தினாலும் உங்களை நிரப்புவாராக.',
+        textEn: 'May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit.',
+        reflectionTa: 'விசுவாசத்தின் வழியே தேவ சந்தோஷமும் சமாதானமும் நம் உள்ளத்தில் வழிந்தோடும்.',
+        reflectionEn: 'May true spiritual joy and overflowing hope flood your soul today.'
+      },
+      {
+        id: 'hope-3',
+        topic: 'hope',
+        topicTa: 'எதிர்காலம்',
+        topicEn: 'Hope',
+        refTa: 'சங்கீதம் 42:11',
+        refEn: 'Psalm 42:11',
+        textTa: 'என் ஆத்துமாவே, நீ ஏன் கலங்குகிறாய்? எனக்குள் ஏன் தியங்குகிறாய்? தேவனை நோக்கிக் காத்திரு; அவர் என் இரட்சிப்பும் என் தேவனுமாயிருக்கிறார்.',
+        textEn: 'Why, my soul, are you downcast? Why so disturbed within me? Put your hope in God, for I will yet praise him, my Savior and my God.',
+        reflectionTa: 'தற்காலிக சோதனைகளைக் கண்டு சோர்ந்துபோகாமல் தேவனை நோக்கி நம்பிக்கையுடன் காத்திருங்கள்.',
+        reflectionEn: 'Look up to God in faith; sorrow is transient, but His grace is everlasting.'
+      },
+
+      // PRAYER (ஜெபம்)
+      {
+        id: 'prayer-1',
+        topic: 'prayer',
+        topicTa: 'ஜெபம்',
+        topicEn: 'Prayer',
+        refTa: 'பிலிப்பியர் 4:6',
+        refEn: 'Philippians 4:6',
+        textTa: 'நீங்கள் ஒன்றுக்குங் கவலைப்படாமல், எல்லாவற்றையுங்குறித்து உங்கள் விண்ணப்பங்களை ஸ்தோத்திரத்தோடே கூடிய ஜெபத்தினாலும் வேண்டுதலினாலும் தேவனுக்குத் தெரியப்படுத்துங்கள்.',
+        textEn: 'Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.',
+        reflectionTa: 'கவலைப்படுவதை நிறுத்தி, நன்றியறிதலோடு உங்கள் ஜெபங்களை தேவனிடம் அறிவியுங்கள்.',
+        reflectionEn: 'Transform anxious thoughts into grateful prayers before the Throne of Grace.'
+      },
+      {
+        id: 'prayer-2',
+        topic: 'prayer',
+        topicTa: 'ஜெபம்',
+        topicEn: 'Prayer',
+        refTa: 'மத்தேயு 7:7',
+        refEn: 'Matthew 7:7',
+        textTa: 'கேளுங்கள், அப்பொழுது உங்களுக்குக் கொடுக்கப்படும்; தேடுங்கள், அப்பொழுது கண்டடைவீர்கள்; தட்டுங்கள், அப்பொழுது உங்களுக்குத் திறக்கப்படும்.',
+        textEn: 'Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.',
+        reflectionTa: 'விசுவாசத்தோடு கேட்கும் எந்த ஜெபத்தையும் தேவன் புறக்கணிப்பதில்லை.',
+        reflectionEn: 'Persistence and humble faith unlock the abundant treasures of heaven.'
+      },
+      {
+        id: 'prayer-3',
+        topic: 'prayer',
+        topicTa: 'ஜெபம்',
+        topicEn: 'Prayer',
+        refTa: '1 தெசலோனிக்கேயர் 5:16-18',
+        refEn: '1 Thessalonians 5:16-18',
+        textTa: 'எப்பொழுதும் சந்தோஷமாயிருங்கள். இடைவிடாமல் ஜெபம்பண்ணுங்கள். எல்லாவற்றிலேயும் ஸ்தோத்திரஞ்செய்யுங்கள்; இதுவே உங்களைக்குறித்து கிறிஸ்து இயேசுவுக்குள் தேவனுடைய சித்தமாயிருக்கிறது.',
+        textEn: 'Rejoice always, pray continually, give thanks in all circumstances; for this is God’s will for you in Christ Jesus.',
+        reflectionTa: 'தொடர்ச்சியான ஜெப வாழ்வும் நன்றி நிறைந்த இதயமும் தேவ சித்தத்தின் நிறைவு.',
+        reflectionEn: 'A continuous spirit of gratitude and communion with God brings heavenly peace.'
+      }
+    ];
+
+    // ==================== 2. APPLICATION STATE ====================
+    let currentVerse = PRESET_VERSES[0];
+    let currentLanguage = localStorage.getItem('tamil_bible_lang') || 'ta';
+    let currentTopic = 'all';
+    let currentTheme = localStorage.getItem('tamil_bible_theme') || 'dark';
+    let favorites = JSON.parse(localStorage.getItem('tamil_bible_favs') || '[]');
+    let currentFontSizeStep = 0; // -1, 0, 1, 2
+
+    // Prayer Timer State
+    let timerTotalSeconds = 180;
+    let timerRemainingSeconds = 180;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    // Daily Reminder State
+    let reminderTime = localStorage.getItem('tamil_bible_reminder_time') || '06:30';
+    let reminderEnabled = localStorage.getItem('tamil_bible_reminder_active') === 'true';
+    let reminderCheckInterval = null;
+
+    // PWA deferred prompt
+    let deferredPrompt = null;
+
+    // ==================== 3. INITIALIZATION & LIFECYCLE ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      updateLanguageUI();
+      renderFavoritesCount();
+      initReminderUI();
+      checkNetworkStatus();
+
+      // Listen to Network Changes
+      window.addEventListener('online', () => {
+        checkNetworkStatus();
+        showToast('இணைய இணைப்பு மீண்டும் கிடைத்தது!', 'success');
+      });
+      window.addEventListener('offline', () => {
+        checkNetworkStatus();
+        showToast('இணைய இணைப்பு துண்டிக்கப்பட்டது. ஆஃப்லைன் முறை இயங்குகிறது.', 'info');
+      });
+
+      // Fetch daily verse
+      fetchDailyVerse(currentLanguage);
+
+      // Start Daily Reminder background loop
+      startReminderChecker();
+
+      // Listen for PWA install event
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('btn-pwa-install');
+        if (installBtn) installBtn.classList.remove('hidden');
+      });
+
+      // Register Service Worker
+      registerServiceWorker();
+    });
+
+    // Service Worker Registration
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => {
+            console.log('Service Worker Registered successfully:', reg.scope);
+          })
+          .catch((err) => {
+            console.log('Service Worker registration note:', err);
+          });
+      }
+    }
+
+    // ==================== 4. NETWORK & API FETCH ENGINE ====================
+    function checkNetworkStatus() {
+      const isOnline = navigator.onLine;
+      const statusText = document.getElementById('network-status-text');
+      const statusIndicator = document.getElementById('network-status');
+      const offlineBanner = document.getElementById('offline-banner');
+
+      if (isOnline) {
+        statusText.textContent = currentLanguage === 'ta' ? 'நேரலை' : 'Online';
+        statusIndicator.className = 'inline-flex items-center text-[11px] font-medium text-emerald-400';
+        offlineBanner.classList.add('hidden');
+      } else {
+        statusText.textContent = currentLanguage === 'ta' ? 'ஆஃப்லைன்' : 'Offline';
+        statusIndicator.className = 'inline-flex items-center text-[11px] font-medium text-amber-400';
+        offlineBanner.classList.remove('hidden');
+      }
+    }
+
+    async function fetchDailyVerse(lang = 'ta', forceRefresh = false) {
+      const sourcePill = document.getElementById('verse-source-pill');
+      sourcePill.textContent = '...';
+      
+      // If offline, directly pick local
+      if (!navigator.onLine) {
+        useOfflineFallback('Offline (ஆஃப்லைன்)');
+        return;
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
+
+        const response = await fetch(`https://daily-verse-api.vercel.app/api/verse?mode=daily&lang=${lang}`, {
+          signal: controller.signal,
+          headers: { 'Accept': 'application/json' }
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error('API Response Error');
+        const data = await response.json();
+
+        if (data && (data.verse || data.text || data.tamil || data.textTa)) {
+          // Successfully fetched from API
+          currentVerse = {
+            id: 'api-' + Date.now(),
+            topic: data.topic || 'peace',
+            topicTa: data.topicTa || 'சமாதானம்',
+            topicEn: data.topicEn || 'Peace',
+            refTa: data.referenceTa || data.reference || data.ref || 'வேத வசனம்',
+            refEn: data.referenceEn || data.reference || 'Daily Verse',
+            textTa: data.textTa || data.tamil || data.verse || data.text,
+            textEn: data.textEn || data.english || data.translation || data.text || '',
+            reflectionTa: data.reflectionTa || data.reflection || 'இன்றைய நாளில் இந்த வேத வசனத்தை உங்கள் இதயத்தில் தியானியுங்கள்.',
+            reflectionEn: data.reflectionEn || 'Meditate on this precious word of God throughout your day.'
+          };
+          sourcePill.textContent = 'API Live';
+          sourcePill.className = 'text-[11px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40';
+          renderVerseCard();
+          return;
+        } else {
+          throw new Error('Invalid JSON format');
+        }
+      } catch (error) {
+        console.warn('Daily Verse API failed or timed out. Using high-quality offline verse bank:', error);
+        useOfflineFallback('Offline Library');
+      }
+    }
+
+    function useOfflineFallback(reason = 'Offline') {
+      const sourcePill = document.getElementById('verse-source-pill');
+      sourcePill.textContent = reason;
+      sourcePill.className = 'text-[11px] text-amber-300 bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800/40';
+
+      // Pick verse based on current day of year or random from topic
+      const filtered = currentTopic === 'all' 
+        ? PRESET_VERSES 
+        : PRESET_VERSES.filter(v => v.topic === currentTopic);
+      
+      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+      const index = (dayOfYear % filtered.length);
+      currentVerse = filtered[index] || PRESET_VERSES[0];
+      renderVerseCard();
+    }
+
+    function getRandomVerse() {
+      const pool = currentTopic === 'all' 
+        ? PRESET_VERSES 
+        : PRESET_VERSES.filter(v => v.topic === currentTopic);
+      
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      currentVerse = pool[randomIndex] || PRESET_VERSES[0];
+      renderVerseCard();
+      showToast(currentLanguage === 'ta' ? 'புதிய வசனம் ஏற்றப்பட்டது!' : 'New verse loaded!', 'info');
+    }
+
+    function setTopicFilter(topic) {
+      currentTopic = topic;
+      document.querySelectorAll('.topic-chip').forEach(chip => {
+        if (chip.getAttribute('data-topic') === topic) {
+          chip.className = 'topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-sm border border-indigo-500 transition-all flex items-center space-x-1';
+        } else {
+          chip.className = 'topic-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all flex items-center space-x-1';
+        }
+      });
+
+      const pool = topic === 'all' ? PRESET_VERSES : PRESET_VERSES.filter(v => v.topic === topic);
+      if (pool.length > 0) {
+        currentVerse = pool[Math.floor(Math.random() * pool.length)];
+        renderVerseCard();
+      }
+    }
+
+    // ==================== 5. UI RENDERING & TYPOGRAPHY ====================
+    function renderVerseCard() {
+      const vText = document.getElementById('verse-text');
+      const vTrans = document.getElementById('verse-translation');
+      const vRef = document.getElementById('verse-reference');
+      const vRefEn = document.getElementById('verse-ref-english');
+      const topicText = document.getElementById('topic-badge-text');
+      const topicIcon = document.getElementById('topic-badge-icon');
+      const reflectionText = document.getElementById('verse-reflection-text');
+
+      const isTa = currentLanguage === 'ta';
+
+      // Topic icon map
+      const icons = {
+        peace: '🕊️',
+        trust: '⚓',
+        courage: '🦁',
+        hope: '🌅',
+        prayer: '🙏'
+      };
+
+      topicIcon.textContent = icons[currentVerse.topic] || '✨';
+      topicText.textContent = isTa ? (currentVerse.topicTa || 'வேத வசனம்') : (currentVerse.topicEn || 'Verse');
+
+      if (isTa) {
+        vText.textContent = currentVerse.textTa || currentVerse.text;
+        vTrans.textContent = currentVerse.textEn ? `"${currentVerse.textEn}"` : '';
+        vRef.textContent = currentVerse.refTa || currentVerse.reference;
+        vRefEn.textContent = currentVerse.refEn || '';
+        reflectionText.textContent = currentVerse.reflectionTa || 'கர்த்தரின் சமுகத்தில் உங்கள் விண்ணப்பங்களை வைத்து அமைதியாய் இருங்கள்.';
+      } else {
+        vText.textContent = currentVerse.textEn || currentVerse.text;
+        vTrans.textContent = currentVerse.textTa ? `"${currentVerse.textTa}"` : '';
+        vRef.textContent = currentVerse.refEn || currentVerse.reference;
+        vRefEn.textContent = currentVerse.refTa || '';
+        reflectionText.textContent = currentVerse.reflectionEn || 'Meditate on the goodness of the Lord today.';
+      }
+
+      // Update favorite button state
+      updateFavoriteButtonUI();
+    }
+
+    function adjustFontSize(delta) {
+      currentFontSizeStep = Math.max(-1, Math.min(2, currentFontSizeStep + delta));
+      const vText = document.getElementById('verse-text');
+      const indicator = document.getElementById('font-size-indicator');
+      
+      const sizeClasses = ['text-base sm:text-lg', 'text-lg sm:text-xl md:text-2xl', 'text-xl sm:text-2xl md:text-3xl', 'text-2xl sm:text-3xl md:text-4xl'];
+      vText.className = `tamil-quote font-medium text-slate-50 leading-relaxed sm:leading-loose text-left transition-all ${sizeClasses[currentFontSizeStep + 1]}`;
+      
+      const labels = ['0.9x', '1.0x', '1.2x', '1.4x'];
+      indicator.textContent = labels[currentFontSizeStep + 1];
+    }
+
+    function toggleReflection() {
+      const box = document.getElementById('reflection-box');
+      const arrow = document.getElementById('reflection-arrow');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+      } else {
+        box.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+      }
+    }
+
+    // ==================== 6. LANGUAGE & THEME ENGINE ====================
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'ta' ? 'en' : 'ta';
+      localStorage.setItem('tamil_bible_lang', currentLanguage);
+      updateLanguageUI();
+      renderVerseCard();
+      checkNetworkStatus();
+      showToast(currentLanguage === 'ta' ? 'தமிழ் மொழி தேர்ந்தெடுக்கப்பட்டது' : 'English selected', 'info');
+    }
+
+    function updateLanguageUI() {
+      const isTa = currentLanguage === 'ta';
+      document.getElementById('lang-indicator').textContent = isTa ? 'தமிழ்' : 'English';
+      document.getElementById('app-header-title').textContent = isTa ? 'தமிழ் வேத வசனம்' : 'Tamil Daily Verse';
+      document.getElementById('lbl-categories').textContent = isTa ? 'பிரிவுகள் (Topics)' : 'Topics (பிரிவுகள்)';
+      document.getElementById('btn-random-verse-text').textContent = isTa ? 'வேறு வசனம்' : 'New Verse';
+      document.getElementById('btn-copy-text').textContent = isTa ? 'நகலெடு' : 'Copy';
+      document.getElementById('btn-share-text').textContent = isTa ? 'பகிர்' : 'Share';
+      document.getElementById('btn-fav-text').textContent = isTa ? 'விருப்பம்' : 'Favorite';
+      document.getElementById('btn-audio-text').textContent = isTa ? 'கேள்' : 'Listen';
+      document.getElementById('btn-wallpaper-text').textContent = isTa ? 'படம்' : 'Card';
+      document.getElementById('lbl-timer-title').textContent = isTa ? 'அமைதி ஜெப நேரம் (Prayer Timer)' : 'Quiet Prayer Timer';
+      document.getElementById('lbl-timer-desc').textContent = isTa ? 'தேவ சமூகத்தில் அமைதியாக தியானித்து ஜெபிக்க' : 'Meditate quietly in God\'s presence';
+      document.getElementById('lbl-reminder-title').textContent = isTa ? 'தினசரி நினைவூட்டல் (Daily Reminder)' : 'Daily Reminder';
+      document.getElementById('lbl-reminder-desc').textContent = isTa ? 'தினமும் வேத வசனத்தையும் ஜெபத்தையும் நினைவூட்ட' : 'Daily Bible verse & prayer notification';
+      document.getElementById('lbl-fav-title').textContent = isTa ? 'பிடித்த வசனங்கள் (Favorites)' : 'Favorite Verses';
+    }
+
+    function cycleTheme() {
+      const html = document.documentElement;
+      if (currentTheme === 'dark') {
+        currentTheme = 'light';
+        html.className = 'light';
+      } else if (currentTheme === 'light') {
+        currentTheme = 'sepia';
+        html.className = 'theme-sepia';
+      } else {
+        currentTheme = 'dark';
+        html.className = 'dark';
+      }
+      localStorage.setItem('tamil_bible_theme', currentTheme);
+      updateThemeUI();
+    }
+
+    function initTheme() {
+      const html = document.documentElement;
+      if (currentTheme === 'sepia') html.className = 'theme-sepia';
+      else if (currentTheme === 'light') html.className = 'light';
+      else html.className = 'dark';
+      updateThemeUI();
+    }
+
+    function updateThemeUI() {
+      const iconContainer = document.getElementById('btn-theme-toggle');
+      if (currentTheme === 'dark') {
+        iconContainer.innerHTML = `<svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+      } else if (currentTheme === 'light') {
+        iconContainer.innerHTML = `<svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
+      } else {
+        iconContainer.innerHTML = `<span class="text-sm">📜</span>`;
+      }
+    }
+
+    // ==================== 7. ACTIONS: COPY, SHARE, TTS, WALLPAPER ====================
+    function copyVerseToClipboard() {
+      const textToCopy = `${currentVerse.textTa || currentVerse.text}\n\n— ${currentVerse.refTa || currentVerse.reference}\n("${currentVerse.textEn}")\n\n✨ தினசரி தமிழ் வேத வசனம்`;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToast(currentLanguage === 'ta' ? 'வசனம் நகலெடுக்கப்பட்டது! 📋' : 'Verse copied to clipboard! 📋', 'success');
+        });
+      } else {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('வசனம் நகலெடுக்கப்பட்டது!', 'success');
+      }
+    }
+
+    function shareToWhatsApp() {
+      const message = `✨ *இன்றைய தமிழ் வேத வசனம் / Daily Verse* ✨\n\n📖 *${currentVerse.refTa || currentVerse.reference}*\n\n"${currentVerse.textTa || currentVerse.text}"\n\n_English:_\n"${currentVerse.textEn}"\n\n🕊️ *தியானம்:* ${currentVerse.reflectionTa || ''}\n\n✝️ தேவ சமாதானமும் ஆசீர்வாதமும் உங்களோடிருப்பதாக!`;
+      const encoded = encodeURIComponent(message);
+      window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
+    }
+
+    function speakCurrentVerse() {
+      if (!('speechSynthesis' in window)) {
+        showToast('உங்கள் உலாவியில் ஆடியோ வசதி ஆதரிக்கப்படவில்லை.', 'error');
+        return;
+      }
+
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        document.getElementById('tts-icon').classList.remove('text-rose-400');
+        showToast('ஆடியோ நிறுத்தப்பட்டது', 'info');
+        return;
+      }
+
+      const text = currentLanguage === 'ta' 
+        ? `${currentVerse.refTa}. ${currentVerse.textTa}` 
+        : `${currentVerse.refEn}. ${currentVerse.textEn}`;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = currentLanguage === 'ta' ? 'ta-IN' : 'en-US';
+      utterance.rate = 0.85; // Slightly slower for clear Tamil pronunciation
+
+      utterance.onstart = () => {
+        document.getElementById('tts-icon').classList.add('text-rose-400');
+        showToast('வசனம் வாசிக்கப்படுகிறது... 🔊', 'info');
+      };
+
+      utterance.onend = () => {
+        document.getElementById('tts-icon').classList.remove('text-rose-400');
+      };
+
+      utterance.onerror = () => {
+        document.getElementById('tts-icon').classList.remove('text-rose-400');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function generateWallpaperCard() {
+      const canvas = document.getElementById('wallpaper-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = 1080;
+      const H = 1350;
+
+      // Background Gradient
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, '#0f172a');
+      grad.addColorStop(0.5, '#1e1b4b');
+      grad.addColorStop(1, '#311042');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Decorative Circles
+      ctx.beginPath();
+      ctx.arc(W - 100, 150, 250, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(99, 102, 241, 0.15)';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(100, H - 200, 300, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.12)';
+      ctx.fill();
+
+      // Border Card Box
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 4;
+      ctx.roundRect(70, 70, W - 140, H - 140, 40);
+      ctx.stroke();
+
+      // Cross Symbol
+      ctx.fillStyle = '#818cf8';
+      ctx.font = 'bold 50px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✝', W / 2, 180);
+
+      // Header Reference
+      ctx.fillStyle = '#c7d2fe';
+      ctx.font = 'bold 44px "Noto Sans Tamil", sans-serif';
+      ctx.fillText(currentVerse.refTa || currentVerse.reference, W / 2, 260);
+
+      // Primary Verse Text (Word Wrap)
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 46px "Tiro Tamil", "Noto Sans Tamil", serif';
+      wrapText(ctx, `“${currentVerse.textTa || currentVerse.text}”`, W / 2, 420, W - 240, 75);
+
+      // Divider Line
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 120, 860);
+      ctx.lineTo(W / 2 + 120, 860);
+      ctx.stroke();
+
+      // English Translation
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'italic 34px "Plus Jakarta Sans", sans-serif';
+      wrapText(ctx, `"${currentVerse.textEn}"`, W / 2, 940, W - 260, 52);
+
+      // Footer
+      ctx.fillStyle = '#a5b4fc';
+      ctx.font = '28px "Noto Sans Tamil", sans-serif';
+      ctx.fillText('தினசரி தமிழ் வேத வசனம் • Daily Tamil Bible Verse', W / 2, H - 130);
+
+      // Trigger Download
+      const link = document.createElement('a');
+      link.download = `tamil-bible-verse-${currentVerse.refTa || 'verse'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('படம் வெற்றிகரமாக சேமிக்கப்பட்டது! 🖼️', 'success');
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n] + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    // ==================== 8. FAVORITES LOCAL STORAGE ENGINE ====================
+    function toggleCurrentFavorite() {
+      const index = favorites.findIndex(f => f.id === currentVerse.id || f.textTa === currentVerse.textTa);
+      if (index >= 0) {
+        favorites.splice(index, 1);
+        showToast('பிடித்தவை பட்டியலிலிருந்து நீக்கப்பட்டது', 'info');
+      } else {
+        favorites.push(currentVerse);
+        showToast('பிடித்தவை பட்டியலில் சேர்க்கப்பட்டது! ❤️', 'success');
+      }
+      localStorage.setItem('tamil_bible_favs', JSON.stringify(favorites));
+      updateFavoriteButtonUI();
+      renderFavoritesCount();
+    }
+
+    function updateFavoriteButtonUI() {
+      const heart = document.getElementById('fav-heart-icon');
+      const isFav = favorites.some(f => f.id === currentVerse.id || f.textTa === currentVerse.textTa);
+      if (isFav) {
+        heart.setAttribute('fill', '#f43f5e');
+        heart.setAttribute('stroke', '#f43f5e');
+        heart.className = 'w-4 h-4 text-rose-500 scale-110 transition-transform';
+      } else {
+        heart.setAttribute('fill', 'none');
+        heart.setAttribute('stroke', 'currentColor');
+        heart.className = 'w-4 h-4 text-slate-400 transition-transform';
+      }
+    }
+
+    function renderFavoritesCount() {
+      const badge = document.getElementById('fav-count-badge');
+      if (favorites.length > 0) {
+        badge.textContent = favorites.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openFavoritesModal() {
+      const modal = document.getElementById('favorites-modal');
+      const list = document.getElementById('favorites-list');
+      const totalText = document.getElementById('fav-total-text');
+      modal.classList.remove('hidden');
+
+      totalText.textContent = `மொத்தம்: ${favorites.length} வசனங்கள்`;
+
+      if (favorites.length === 0) {
+        list.innerHTML = `
+          <div class="py-12 text-center text-slate-400 space-y-2">
+            <span class="text-3xl">📖</span>
+            <p class="text-sm">இன்னும் எந்த வசனமும் சேர்க்கப்படவில்லை.</p>
+            <p class="text-xs text-slate-500">வசன அட்டையிலுள்ள 'விருப்பம்' பொத்தானை அழுத்தி சேர்க்கலாம்.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = favorites.map((fav, i) => `
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 space-y-2 relative group">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-indigo-400">${fav.refTa || fav.reference}</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="loadFavoriteVerse(${i})" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg">காட்டு</button>
+              <button onclick="removeFavoriteByIndex(${i})" class="text-xs text-rose-400 hover:text-rose-300 p-1">✕</button>
+            </div>
+          </div>
+          <p class="tamil-quote text-xs sm:text-sm text-slate-200 leading-relaxed">${fav.textTa || fav.text}</p>
+        </div>
+      `).join('');
+    }
+
+    function closeFavoritesModal() {
+      document.getElementById('favorites-modal').classList.add('hidden');
+    }
+
+    function loadFavoriteVerse(index) {
+      if (favorites[index]) {
+        currentVerse = favorites[index];
+        renderVerseCard();
+        closeFavoritesModal();
+        showToast('வசனம் ஏற்றப்பட்டது!', 'info');
+      }
+    }
+
+    function removeFavoriteByIndex(index) {
+      favorites.splice(index, 1);
+      localStorage.setItem('tamil_bible_favs', JSON.stringify(favorites));
+      openFavoritesModal();
+      renderFavoritesCount();
+      updateFavoriteButtonUI();
+    }
+
+    function clearAllFavorites() {
+      if (favorites.length === 0) return;
+      if (confirm('அனைத்து பிடித்த வசனங்களையும் நீக்க விரும்புகிறீர்களா?')) {
+        favorites = [];
+        localStorage.setItem('tamil_bible_favs', JSON.stringify(favorites));
+        openFavoritesModal();
+        renderFavoritesCount();
+        updateFavoriteButtonUI();
+        showToast('அனைத்தும் நீக்கப்பட்டது', 'info');
+      }
+    }
+
+    // ==================== 9. QUIET PRAYER TIMER ENGINE ====================
+    function setTimerDuration(seconds) {
+      if (isTimerRunning) resetPrayerTimer();
+      timerTotalSeconds = seconds;
+      timerRemainingSeconds = seconds;
+      updateTimerDisplay();
+
+      // Update preset active button
+      document.querySelectorAll('.timer-preset-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-sec')) === seconds) {
+          btn.className = 'timer-preset-btn active px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm border border-indigo-500 transition-all';
+        } else {
+          btn.className = 'timer-preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40 hover:bg-slate-700 transition-all';
+        }
+      });
+    }
+
+    function togglePrayerTimer() {
+      if (isTimerRunning) {
+        pausePrayerTimer();
+      } else {
+        startPrayerTimer();
+      }
+    }
+
+    function startPrayerTimer() {
+      isTimerRunning = true;
+      document.getElementById('timer-play-icon').classList.add('hidden');
+      document.getElementById('timer-pause-icon').classList.remove('hidden');
+      document.getElementById('timer-breathe-glow').classList.remove('hidden');
+
+      // Start Bell Chime at start
+      playChimeSound(523.25, 2.2); // C5 harmonic bell
+
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerDisplay();
+
+          // Halfway reminder chime
+          if (timerRemainingSeconds === Math.floor(timerTotalSeconds / 2)) {
+            playChimeSound(659.25, 1.8); // E5 gentle chime
+          }
+        } else {
+          // Timer finished
+          finishPrayerTimer();
+        }
+      }, 1000);
+    }
+
+    function pausePrayerTimer() {
+      isTimerRunning = false;
+      clearInterval(timerInterval);
+      document.getElementById('timer-play-icon').classList.remove('hidden');
+      document.getElementById('timer-pause-icon').classList.add('hidden');
+      document.getElementById('timer-breathe-glow').classList.add('hidden');
+    }
+
+    function resetPrayerTimer() {
+      pausePrayerTimer();
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerDisplay();
+      document.getElementById('timer-phase-text').textContent = 'ஆரம்ப அமைதி';
+      document.getElementById('timer-prompt-text').textContent = 'தியானியுங்கள்...';
+    }
+
+    function finishPrayerTimer() {
+      pausePrayerTimer();
+      timerRemainingSeconds = 0;
+      updateTimerDisplay();
+      
+      // Completion chime triple bell
+      playChimeSound(523.25, 2.5);
+      setTimeout(() => playChimeSound(659.25, 2.5), 350);
+      setTimeout(() => playChimeSound(783.99, 3.5), 700);
+
+      document.getElementById('timer-phase-text').textContent = 'ஜெபம் நிறைவு!';
+      document.getElementById('timer-prompt-text').textContent = 'ஆமென். தேவ சமாதானம் உங்களுடன்!';
+      showToast('அமைதி ஜெப நேரம் இனிதே நிறைவுற்றது! ஆமென் 🙏', 'success');
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerRemainingSeconds / 60);
+      const secs = timerRemainingSeconds % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById('timer-display').textContent = formatted;
+
+      // Update SVG Ring Progress
+      const ring = document.getElementById('timer-progress-ring');
+      const circumference = 2 * Math.PI * 70; // 439.82
+      const percent = (timerTotalSeconds - timerRemainingSeconds) / timerTotalSeconds;
+      const offset = circumference * (1 - percent);
+      ring.style.strokeDashoffset = offset;
+
+      // Update Phase text
+      const phase = document.getElementById('timer-phase-text');
+      const prompt = document.getElementById('timer-prompt-text');
+      const ratio = timerRemainingSeconds / timerTotalSeconds;
+
+      if (ratio > 0.66) {
+        phase.textContent = currentLanguage === 'ta' ? 'அமைதி & தியானம்' : 'Stillness';
+        prompt.textContent = currentLanguage === 'ta' ? 'உள்ளத்தை அமைதிப்படுத்துங்கள்' : 'Quiet your soul';
+      } else if (ratio > 0.33) {
+        phase.textContent = currentLanguage === 'ta' ? 'நன்றியறிதல்' : 'Thanksgiving';
+        prompt.textContent = currentLanguage === 'ta' ? 'தேவ நன்மைகளை நினையுங்கள்' : 'Count His blessings';
+      } else if (ratio > 0) {
+        phase.textContent = currentLanguage === 'ta' ? 'விண்ணப்பம் & ஆசீர்வாதம்' : 'Petition';
+        prompt.textContent = currentLanguage === 'ta' ? 'விண்ணப்பங்களை சமர்ப்பியுங்கள்' : 'Place your prayers';
+      }
+    }
+
+    // Web Audio API Synthesizer Chime (100% Offline, Rich Harmonics)
+    function playChimeSound(freq = 587.33, duration = 2.0) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+
+        // Fundamental tone
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, ctx.currentTime);
+
+        // Harmonic overtone for Tibetan/Church Bell resonance
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2.76, ctx.currentTime);
+
+        // Third harmonic sparkle
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(freq * 5.4, ctx.currentTime);
+
+        // Envelopes
+        gain1.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + 0.03);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+        gain2.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration * 0.7);
+
+        gain3.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain3.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+        gain3.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration * 0.4);
+
+        osc1.connect(gain1);
+        osc2.connect(gain2);
+        osc3.connect(gain3);
+
+        gain1.connect(ctx.destination);
+        gain2.connect(ctx.destination);
+        gain3.connect(ctx.destination);
+
+        osc1.start();
+        osc2.start();
+        osc3.start();
+
+        osc1.stop(ctx.currentTime + duration);
+        osc2.stop(ctx.currentTime + duration);
+        osc3.stop(ctx.currentTime + duration);
+      } catch (err) {
+        console.warn('Audio Context tone note:', err);
+      }
+    }
+
+    // ==================== 10. DAILY REMINDER & NOTIFICATION API ====================
+    function initReminderUI() {
+      const timeInput = document.getElementById('reminder-time-input');
+      const sw = document.getElementById('reminder-switch');
+      timeInput.value = reminderTime;
+      sw.checked = reminderEnabled;
+      updateReminderStatusText();
+    }
+
+    async function toggleDailyReminder(enabled) {
+      if (enabled) {
+        // Request Web Notification permission
+        if ('Notification' in window) {
+          const perm = await Notification.requestPermission();
+          if (perm !== 'granted') {
+            document.getElementById('reminder-switch').checked = false;
+            reminderEnabled = false;
+            localStorage.setItem('tamil_bible_reminder_active', 'false');
+            showToast('அறிவிப்பு அனுமதி மறுக்கப்பட்டது. உலாவியில் அனுமதிக்கவும்.', 'error');
+            updateReminderStatusText();
+            return;
+          }
+        }
+        reminderEnabled = true;
+        localStorage.setItem('tamil_bible_reminder_active', 'true');
+        showToast(`தினசரி நினைவூட்டல் ${formatTime12h(reminderTime)} மணிக்கு இயக்கப்பட்டது! ⏰`, 'success');
+      } else {
+        reminderEnabled = false;
+        localStorage.setItem('tamil_bible_reminder_active', 'false');
+        showToast('தினசரி நினைவூட்டல் முடக்கப்பட்டது', 'info');
+      }
+      updateReminderStatusText();
+    }
+
+    function saveReminderTime(timeVal) {
+      reminderTime = timeVal;
+      localStorage.setItem('tamil_bible_reminder_time', timeVal);
+      updateReminderStatusText();
+      showToast(`நினைவூட்டல் நேரம் மாற்றப்பட்டது: ${formatTime12h(timeVal)}`, 'info');
+    }
+
+    function setQuickReminderTime(timeVal) {
+      document.getElementById('reminder-time-input').value = timeVal;
+      saveReminderTime(timeVal);
+    }
+
+    function updateReminderStatusText() {
+      const text = document.getElementById('reminder-status-text');
+      if (reminderEnabled) {
+        text.textContent = `நினைவூட்டல் இயங்குகிறது: ${formatTime12h(reminderTime)}`;
+        text.className = 'text-emerald-300 font-medium';
+      } else {
+        text.textContent = `நினைவூட்டல் முடக்கப்பட்டுள்ளது (${formatTime12h(reminderTime)})`;
+        text.className = 'text-slate-400';
+      }
+    }
+
+    function formatTime12h(time24) {
+      const [h, m] = time24.split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+    }
+
+    function sendTestNotification() {
+      playChimeSound(660, 1.8);
+      
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('தினசரி தமிழ் வேத வசனம் 📖', {
+          body: `${currentVerse.refTa || currentVerse.reference}: "${currentVerse.textTa || currentVerse.text}"`,
+          icon: '/manifest.json',
+          tag: 'daily-tamil-verse-reminder'
+        });
+        showToast('சோதனை அறிவிப்பு அனுப்பப்பட்டது!', 'success');
+      } else if ('Notification' in window) {
+        Notification.requestPermission().then(perm => {
+          if (perm === 'granted') {
+            new Notification('தினசரி தமிழ் வேத வசனம் 📖', {
+              body: `${currentVerse.refTa || currentVerse.reference}: "${currentVerse.textTa || currentVerse.text}"`
+            });
+            showToast('சோதனை அறிவிப்பு அனுப்பப்பட்டது!', 'success');
+          } else {
+            showToast('உலாவியில் அறிவிப்பு அனுமதியை இயக்கவும்.', 'error');
+          }
+        });
+      } else {
+        showToast('இந்த உலாவியில் Notification API ஆதரிக்கப்படவில்லை.', 'error');
+      }
+    }
+
+    function startReminderChecker() {
+      if (reminderCheckInterval) clearInterval(reminderCheckInterval);
+      let lastTriggeredDate = '';
+
+      reminderCheckInterval = setInterval(() => {
+        if (!reminderEnabled) return;
+
+        const now = new Date();
+        const currentHours = String(now.getHours()).padStart(2, '0');
+        const currentMins = String(now.getMinutes()).padStart(2, '0');
+        const currentTimeStr = `${currentHours}:${currentMins}`;
+        const todayStr = now.toDateString();
+
+        if (currentTimeStr === reminderTime && lastTriggeredDate !== todayStr) {
+          lastTriggeredDate = todayStr;
+          triggerDailyReminderNotification();
+        }
+      }, 30000); // Check every 30 seconds
+    }
+
+    function triggerDailyReminderNotification() {
+      playChimeSound(523.25, 2.5);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('தினசரி தமிழ் வேத வசனம் & ஜெப நேரம் ✝️', {
+          body: `இன்றைய வசனம் (${currentVerse.refTa}): "${currentVerse.textTa}"\nஅமைதியாக ஜெபிக்க கிளிக் செய்யவும்.`,
+          tag: 'daily-reminder'
+        });
+      }
+    }
+
+    // ==================== 11. PWA INSTALL TRIGGER ====================
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('செயலி வெற்றிகரமாக நிறுவப்பட்டது! 🎉', 'success');
+            document.getElementById('btn-pwa-install').classList.add('hidden');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        showToast('உலாவி மெனுவில் "Add to Home screen" என்பதைத் தேர்வுசெய்க.', 'info');
+      }
+    }
+
+    // ==================== 12. TOAST NOTIFICATION HELPER ====================
+    let toastTimeout = null;
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toast-message');
+      const icon = document.getElementById('toast-icon');
+
+      msg.textContent = message;
+
+      if (type === 'success') {
+        icon.className = 'w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+        icon.textContent = '✓';
+      } else if (type === 'error') {
+        icon.className = 'w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0';
+        icon.textContent = '✕';
+      } else {
+        icon.className = 'w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0';
+        icon.textContent = 'ℹ';
+      }
+
+      toast.classList.remove('opacity-0', 'translate-y-6');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-6');
+      }, 3200);
+    }
+  </script>
+</body>
+</html>
